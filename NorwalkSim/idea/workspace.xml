@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="897ffae6-e81f-4d51-aa78-d266ef4c68ff" name="Default" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CompilerWorkspaceConfiguration">
+    <option name="MAKE_PROJECT_ON_SAVE" value="true" />
+  </component>
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="DefaultGradleProjectSettings">
+    <option name="isMigrated" value="true" />
+  </component>
+  <component name="ProjectId" id="1X21QimqixqMZw2SwK0x29yqRl9" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../NorwalkVirus/Source/CruiseShipModel" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="Errors" />
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="Applet">
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <option name="filePath" />
+      <option name="vmParameters" />
+      <option name="alternativeJrePath" />
+      <option name="programParameters" />
+      <option name="passParentEnvs" value="true" />
+      <option name="workingDirectory" />
+      <option name="isAlternativeJrePathEnabled" value="false" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="WORKING_DIRECTORY" />
+      <module name="" />
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <option name="filePath" />
+      <option name="vmParameters" />
+      <option name="alternativeJrePath" />
+      <option name="programParameters" />
+      <option name="passParentEnvs" value="true" />
+      <option name="workingDirectory" />
+      <option name="isAlternativeJrePathEnabled" value="false" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="WORKING_DIRECTORY" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="TestNG">
+      <option name="TEST_OBJECT" value="CLASS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType">
+      <module name="" />
+      <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea" />
+      <option name="PROGRAM_PARAMETERS" />
+      <predefined_log_file enabled="true" id="idea.log" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ShipUI" type="Application" factoryName="Application" singleton="false" temporary="true" nameIsGenerated="true">
+      <output_file path="$PROJECT_DIR$/log.txt" />
+      <option name="MAIN_CLASS_NAME" value="CruiseShipModel.ShipUI" />
+      <module name="NorwalkSim" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="CruiseShipModel.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="Application" factoryName="Application">
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JUnit" factoryName="JUnit">
+      <option name="TEST_OBJECT" value="class" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.ShipUI" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="897ffae6-e81f-4d51-aa78-d266ef4c68ff" name="Default" comment="" />
+      <created>1486657831826</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1486657831826</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="1165" y="383" width="751" height="497" key="#Notifications" timestamp="1594480821465">
+      <screen x="0" y="0" width="2560" height="1040" />
+    </state>
+    <state x="1165" y="383" width="751" height="497" key="#Notifications/0.0.2560.1040@0.0.2560.1040" timestamp="1594480821465" />
+    <state x="760" y="94" key="#Project_Structure" timestamp="1592249434390">
+      <screen x="0" y="0" width="2560" height="1040" />
+    </state>
+    <state x="760" y="94" key="#Project_Structure/0.0.2560.1040@0.0.2560.1040" timestamp="1592249434390" />
+    <state x="734" y="175" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1592340217859">
+      <screen x="0" y="0" width="2560" height="1040" />
+    </state>
+    <state x="734" y="175" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.2560.1040@0.0.2560.1040" timestamp="1592340217859" />
+    <state x="1096" y="274" key="FileChooserDialogImpl" timestamp="1592262361328">
+      <screen x="0" y="0" width="2560" height="1040" />
+    </state>
+    <state x="1096" y="274" key="FileChooserDialogImpl/0.0.2560.1040@0.0.2560.1040" timestamp="1592262361328" />
+    <state width="1264" height="268" key="GridCell.Tab.0.bottom" timestamp="1595937155432">
+      <screen x="0" y="0" width="2560" height="1040" />
+    </state>
+    <state width="1264" height="268" key="GridCell.Tab.0.bottom/0.0.2560.1040@0.0.2560.1040" timestamp="1595937155432" />
+    <state width="1264" height="268" key="GridCell.Tab.0.center" timestamp="1595937155432">
+      <screen x="0" y="0" width="2560" height="1040" />
+    </state>
+    <state width="1264" height="268" key="GridCell.Tab.0.center/0.0.2560.1040@0.0.2560.1040" timestamp="1595937155432" />
+    <state width="1264" height="268" key="GridCell.Tab.0.left" timestamp="1595937155432">
+      <screen x="0" y="0" width="2560" height="1040" />
+    </state>
+    <state width="1264" height="268" key="GridCell.Tab.0.left/0.0.2560.1040@0.0.2560.1040" timestamp="1595937155432" />
+    <state width="1264" height="268" key="GridCell.Tab.0.right" timestamp="1595937155432">
+      <screen x="0" y="0" width="2560" height="1040" />
+    </state>
+    <state width="1264" height="268" key="GridCell.Tab.0.right/0.0.2560.1040@0.0.2560.1040" timestamp="1595937155432" />
+    <state x="781" y="165" key="SettingsEditor" timestamp="1596041078451">
+      <screen x="0" y="0" width="2560" height="1040" />
+    </state>
+    <state x="781" y="165" key="SettingsEditor/0.0.2560.1040@0.0.2560.1040" timestamp="1596041078451" />
+    <state x="987" y="119" width="658" height="801" key="find.popup" timestamp="1592536530408">
+      <screen x="0" y="0" width="2560" height="1040" />
+    </state>
+    <state x="987" y="119" width="658" height="801" key="find.popup/0.0.2560.1040@0.0.2560.1040" timestamp="1592536530408" />
+    <state x="1108" y="378" key="scopes" timestamp="1592262334859">
+      <screen x="0" y="0" width="2560" height="1040" />
+    </state>
+    <state x="1108" y="378" key="scopes/0.0.2560.1040@0.0.2560.1040" timestamp="1592262334859" />
+    <state x="310" y="230" width="672" height="678" key="search.everywhere.popup" timestamp="1591903017378">
+      <screen x="0" y="0" width="2560" height="1040" />
+    </state>
+    <state x="310" y="230" width="672" height="678" key="search.everywhere.popup/0.0.2560.1040@0.0.2560.1040" timestamp="1591903017378" />
+  </component>
+  <component name="antWorkspaceConfiguration">
+    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="FILTER_TARGETS" value="false" />
+  </component>
+</project>
