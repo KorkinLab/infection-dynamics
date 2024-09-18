@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../NorwalkVirus/Dependencies/geomason_src">
+      <sourceFolder url="file://$MODULE_DIR$/../NorwalkVirus/Dependencies/geomason_src" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../NorwalkVirus/Dependencies/maps">
+      <sourceFolder url="file://$MODULE_DIR$/../NorwalkVirus/Dependencies/maps" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../NorwalkVirus/Source">
+      <sourceFolder url="file://$MODULE_DIR$/../NorwalkVirus/Source" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="jars" level="project" />
+  </component>
+</module>
