@@ -20,7 +20,8 @@ In a terminal navigate to the `NorwalkSim` directory and rename the `idea` direc
 ```
 mv idea .idea
 ```
-Launch IntelliJ and on first launch the Azul JDK 11 should be automatically detected.
+Launch IntelliJ and on first launch the Azul JDK 11 should be automatically detected.  
 Then select the "Open" option, from which select the `~/IdeaProjects/NorwalkSim`. For the security prompt, you can select to trust `~/IdeaProjects`.  
 The project should now be open and in the left-side project panel, right-click on `NorwalkSim` and select "Open Module Settings".  
-In the "Dependencies" tab, for Module SDK, select "zulu-11".  
+As shown below, in the "Dependencies" tab, for Module SDK, select "zulu-11".  
+![ModuleDependencySDK](https://github.com/user-attachments/assets/514b891d-3b2e-40f5-a79b-64c3d3103601)
