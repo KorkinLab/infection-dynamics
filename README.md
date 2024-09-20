@@ -18,7 +18,7 @@ Download the GitHub repository from [here](https://github.com/KorkinLab/infectio
 Unzip the repository and place the `NorwalkVirus` and `NorwalkSim` directories in `IdeaProjects`.  
 In a terminal navigate to the `NorwalkSim` directory and rename the `idea` directory.
 ```
-mv idea .idea
+$ mv idea .idea
 ```
 Launch IntelliJ and on first launch the Azul JDK 11 should be automatically detected.  
 Then select the "Open" option, from which select the `~/IdeaProjects/NorwalkSim`.  
@@ -33,17 +33,18 @@ Back in the project panel, right-click on `NorwalkSim` and select "Rebuild Modul
 After which, in the project panel, expand the `NorwalkSim/Source` directory, right-click on `ShipUI` and select "Run".  
 There will be two small windows that popup. As shown below, select the square "ShipUI" window with playback controls and click "Run".  
 <img src="https://github.com/user-attachments/assets/41763949-05da-4b69-85cc-ffd61334d7f4" width="256">  
-This will then expand the other window and the simulation begins to run.
-This window is mainly for visualizing the agents and the map, and can be minimized. 
+This will then expand the other window and the simulation begins to run.  
+This window is mainly for visualizing the agents and the map, and can be minimized.  
 **NOTE**: Minimizing the visualization window speeds up the simulation drastically and is STRONGLY recommended.  
-The simulation automatically ends after the set amount of time has passed or can be stopped manually by closing the window or using the "Stop" button.  
+The simulation automatically ends after the set amount of time has passed or can be stopped by closing the window or using the "Stop" button.  
 The simulation statistics are saved to file in `~/IdeaProjects/NorwalkSim`.  
-Each simulation generates a logging directory in the format `Log_YYYY-MM-DD_HH.MM.SS`.  
+Each simulation generates a logs directory in the format `Log_YYYY-MM-DD_HH.MM.SS`.  
 Multiple simulations from the same project can be run simultaneously by right-clicking on `ShipUI` and select "Run", and following the earlier steps.
 
 ### Regarding running simulations on Mac
 There is instability in the visualization window when running the simulation on macOS (this has been a long standing issue).  
-This can end up crashing the simulation. Therefore it is recommended to run the simulation on a Windows or Linux.  
-Additionally, as observed on Apple M1, when running multiple simulations, the run times can vary by a wide margin, e.g., 4 to 8 hours to complete Norwalk outbreak. 
+This can end up crashing the simulation if there is any user interaction with the viz window.  
+Therefore it is recommended to run the simulation on a Windows or Linux.  
+Additionally, as observed on Apple M1, when running multiple simulations, the run times can vary by a wide margin, e.g., 4 to 8 hours to complete Norwalk outbreak.  
 This is likely due to how macOS schedules these minimized windows and processes on performance versus efficiency cores.  
 This variation does not occur on Windows.  
