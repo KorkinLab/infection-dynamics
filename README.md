@@ -13,4 +13,6 @@ The project needs to be configured through an integrated development environment
 The project was developed using IntelliJ IDEA and the Community Edition (free) for your OS and architecture can be downloaded from [here](https://www.jetbrains.com/idea/download/).  
 
 ### 3. IDE Project Configuration
-
+Create an `IdeaProjects` directory in your Home directory.
+Download the GitHub repository from [here](https://github.com/KorkinLab/infection-dynamics/archive/refs/heads/main.zip).
+Unzip the repository and place the `NorwalkVirus` and `NorwalkSim` directories in `IdeaProjects`.
