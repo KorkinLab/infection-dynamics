@@ -13,6 +13,14 @@ The project needs to be configured through an integrated development environment
 The project was developed using IntelliJ IDEA and the Community Edition (free) for your OS and architecture can be downloaded from [here](https://www.jetbrains.com/idea/download/).  
 
 ### 3. IDE Project Configuration
-Create an `IdeaProjects` directory in your Home directory.
-Download the GitHub repository from [here](https://github.com/KorkinLab/infection-dynamics/archive/refs/heads/main.zip).
-Unzip the repository and place the `NorwalkVirus` and `NorwalkSim` directories in `IdeaProjects`.
+Create an `IdeaProjects` directory in your Home directory.  
+Download the GitHub repository from [here](https://github.com/KorkinLab/infection-dynamics/archive/refs/heads/main.zip).  
+Unzip the repository and place the `NorwalkVirus` and `NorwalkSim` directories in `IdeaProjects`.  
+In a terminal navigate to the `NorwalkSim` directory and rename the `idea` directory.
+```
+mv idea .idea
+```
+Launch IntelliJ and on first launch the Azul JDK 11 should be automatically detected.
+Then select the "Open" option, from which select the `~/IdeaProjects/NorwalkSim`. For the security prompt, you can select to trust `~/IdeaProjects`.  
+The project should now be open and in the left-side project panel, right-click on `NorwalkSim` and select "Open Module Settings".  
+In the "Dependencies" tab, for Module SDK, select "zulu-11".  
