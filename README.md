@@ -2,8 +2,8 @@
 Suhas Srinivasan, Jeffrey King, Andres Colubri, Dmitry Korkin  
 bioRxiv 2024.10.01.616085; doi: https://doi.org/10.1101/2024.10.01.616085
 
-# infection-dynamics
-Contains source code, GIS files and libraries for the Infection Dynamics (Cruise Ship) Project.
+#
+This repository contains source code, GIS files and libraries for the Infection Dynamics project, with the primary modeled outbreak of Norwalk Virus on Cruise Ship X.
 
 ## Project Setup
 ### 1. Java Development Kit
