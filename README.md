@@ -25,15 +25,13 @@ Launch IntelliJ and on first launch the Azul JDK 11 should be automatically dete
 Then select the "Open" option, from which select the `~/IdeaProjects/NorwalkSim`.  
 For the security prompt, you can select to trust `~/IdeaProjects`.  
 The project should now be open and in the left-side project panel, right-click on `NorwalkSim` and select "Open Module Settings".  
-As shown below, in the "Dependencies" tab, for Module SDK, select "zulu-11".  
-<img src="https://github.com/user-attachments/assets/3b7ca212-45ae-419e-95fb-c4894bf0f09a" width="768">  
+In the "Dependencies" tab, for Module SDK, select "zulu-11".  
 Then click "Apply" and "OK".  
 
 ### 4. Running the Simulation
 Back in the project panel, right-click on `NorwalkSim` and select "Rebuild Module".  
 After which, in the project panel, expand the `NorwalkSim/Source` directory, right-click on `ShipUI` and select "Run".  
-There will be two small windows that popup. As shown below, select the square "ShipUI" window with playback controls and click "Run".  
-<img src="https://github.com/user-attachments/assets/41763949-05da-4b69-85cc-ffd61334d7f4" width="256">  
+There will be two small windows that popup. Select the square "ShipUI" window with playback controls and click "Run".  
 This will then expand the other window and the simulation begins to run.  
 This window is mainly for visualizing the agents and the map, and can be minimized.  
 **NOTE**: Minimizing the visualization window speeds up the simulation drastically and is STRONGLY recommended.  
