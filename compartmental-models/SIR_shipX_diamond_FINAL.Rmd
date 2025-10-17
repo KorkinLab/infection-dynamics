@@ -1,0 +1,89 @@
+---
+title: "Basic SIR model for ShipX (Norovirus) and Diamond Princess (SARS-CoV-2)"
+---
+```{r}
+require(deSolve)
+
+sirmod = function(t, y, parms){
+  #Pull state variables from y vector
+  S = y[1]
+  I = y[2]
+  R = y[3]
+  
+  N = S + I + R
+  
+  # beta - transmission coefficient
+  # gamma - recovery period
+  # mu - mortality rate
+  
+  #Pull parameter values from parms vector
+  beta = parms["beta"]
+  gamma = parms["gamma"]
+  mu = parms["mu"]
+  
+  #Define equations
+  dS = mu * (N  - S)  - beta * S * I / N
+  dI = beta * S * I / N - (mu + gamma) * I
+  dR = gamma * I - mu * R
+  res = c(dS, dI, dR)
+  #Return list of gradients
+  list(res)
+}
+
+
+#### Zuiderdam ####
+starts = c(S = 2688, I = 14, R = 0) #Based on the fact that Day 2 has 14 symptomatic in CDC report
+times  = seq(1, 9, by = 1)
+betas = 0.5 #0.75 for 2 days or 0.5 for 3 days
+gammas = 0.33 #0.5 for 2 days or 0.33 for 3 days
+########
+
+#### Diamond ####
+#starts = c(S = 3709, I = 2, R = 0)
+#times  = seq(1, 30, by = 1)
+#betas = 1.35 #default = 0.20 for R0=2.1
+#gammas = 0.091
+########
+
+df_list = list()
+avg_frame = data.frame()
+
+i = 1
+for (beta_ in betas) {
+  parms  = c(beta = beta_, gamma = gammas, mu = 0)
+  out = ode(y = starts, times = times, func = sirmod, parms = parms)
+  out = as.data.frame(out)
+  df_list[[i]] = out
+  if(i == 1) {
+    avg_frame = out 
+  }
+  else {
+    avg_frame = avg_frame + out 
+  }
+  i = i + 1
+}
+
+n_frames = length(betas)
+avg_frame = avg_frame / n_frames
+
+summation = data.frame()
+for(i in 1:n_frames) {
+  filter_frame = data.frame(df_list[[i]])
+  if (i == 1) {
+    summation = (filter_frame - avg_frame) ^ 2
+  }
+  else {
+    summation = summation + ((filter_frame - avg_frame) ^ 2)
+  }
+}
+
+summation = summation / n_frames
+summation = sqrt(summation)
+
+tmp_frame = cbind(avg_frame, summation[ , c(2:4)])
+colnames(tmp_frame) = c('DAY', 'S_AVG', 'I_AVG', 'R_AVG', 'S_STD', 'I_STD', 'R_STD')
+
+output_folder = 'output_sir_shipX_3d.csv' #file with the raw output numbers
+
+write.table(tmp_frame, output_folder, sep = ",", row.names = F, col.names = T, quote = F)
+```
