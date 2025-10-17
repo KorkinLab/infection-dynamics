@@ -1,0 +1,349 @@
+---
+title: "Stratified (passengers, crew) SEIQR SCM for Diamond Princess (COVID-19)"
+---
+
+```{r}
+library(doRNG)
+library(foreach)
+library(doParallel)
+library(boot)
+library(properties)
+
+# tidyr has to be imported before magrittr so extract() from the latter is used
+library(tidyr)
+
+library(plyr)
+library(dplyr)
+library(reshape2)
+library(magrittr)
+
+library(ggplot2)
+library(RColorBrewer)
+theme_set(theme_bw())
+
+library(pomp)
+stopifnot(packageVersion("pomp")>="5")
+```
+
+FOLDERS
+
+```{r}
+main_folder <- "./diamond/"
+if (!dir.exists(main_folder)) dir.create(main_folder)
+
+scm_folder <- file.path(main_folder, "scm")
+if (!dir.exists(scm_folder)) dir.create(scm_folder)
+
+out_folder <- file.path(scm_folder, "output")
+if (!dir.exists(out_folder)) dir.create(out_folder)
+
+pomp_folder <- file.path(scm_folder, "pomp")
+if (!dir.exists(pomp_folder)) dir.create(pomp_folder)
+
+bake_folder <- file.path(pomp_folder, "bake")
+if (!dir.exists(bake_folder)) dir.create(bake_folder)
+
+code_folder <- file.path(pomp_folder, "code")
+if (!dir.exists(code_folder)) dir.create(code_folder)
+file_name <- "snippets"
+```
+
+PARAMETERS
+
+```{r}
+
+# Fixed parameters ==============
+
+# Disease parameters
+param_R0 <- 2.1
+param_e_dur <- 5
+param_i_dur <- 11
+
+betas = 0.19
+sigmas = 0.20
+gammas = 0.091
+
+# Known intervention parameters
+param_vspt <- 0.03
+
+# Initial parameters
+init_sp_num <- 2664
+init_ep_num <- 1
+init_ip_num <- 1
+init_qp_num <- 0
+init_rp_num <- 0
+init_sc_num <- 1044
+init_ec_num <- 0
+init_ic_num <- 1
+init_qc_num <- 0
+init_rc_num <- 0
+num_days <- 30
+
+# Simulation parameters
+time_step <- 0.1
+num_sims <- 50
+
+# Free parameters ==============
+
+# Intervention parameters (to be estimated)
+param_vspf_min <- 0
+param_vspf_max <- 1
+param_qf_min <- 0
+param_qf_max <- 1
+param_i_det_min <- 1
+param_i_det_max <- 4
+param_mix_pc_min <- 0
+param_mix_pc_max <- 1
+
+free_param_names <- c("vspf", "qfrac", "qrate", "mixpc", "rho", "psi")
+free_param_box <- rbind(
+  vspf = c(param_vspf_min, param_vspf_max),
+  qfrac = c(param_qf_min, param_qf_max),
+  qrate = c(1/param_i_det_max, 1/param_i_det_min),
+  mixpc =  c(param_mix_pc_min, param_mix_pc_max),
+  rho = c(0, 1),
+  psi = c(0, 2)
+)
+
+log_trans_params <- c("psi")
+logit_trans_params <- c("vspf", "qfrac", "qrate", "mixpc", "rho")
+
+fixed_param_names <- c("Np", "Nc",
+                       "Sp_0", "Ep_0", "Ip_0", "Qp_0", "Rp_0",
+                       "Sc_0", "Ec_0", "Ic_0", "Qc_0", "Rc_0",
+                       "R0", "sigma", "gamma", "vspt")
+fixed_param_values <- c(Np=init_sp_num, Nc=init_sc_num,
+                        Sp_0=1-(init_ep_num+init_ip_num+init_qp_num+init_rp_num)/init_sp_num, 
+                        Ep_0=init_ep_num/init_sp_num, Ip_0=init_ip_num/init_sp_num, 
+                        Qp_0=init_qp_num/init_sp_num, Rp_0=init_rp_num/init_sp_num, 
+                        Sc_0=1-(init_ec_num+init_ic_num+init_qc_num+init_rc_num)/init_sc_num, 
+                        Ec_0=init_ec_num/init_sc_num, Ic_0=init_ic_num/init_sc_num, 
+                        Qc_0=init_qc_num/init_sc_num, Rc_0=init_rc_num/init_sc_num,                         
+                        R0=param_R0, sigma=1/param_e_dur, gamma=1/param_i_dur, vspt=param_vspt)
+
+all_param_names <- c(free_param_names, fixed_param_names)
+
+all_param_values <- c(vspf=0.50, qfrac=0.25, qrate=1/2, 
+                      rho=0.99, psi=0.1, mixpc=0.75,
+                      Np=init_sp_num, Nc=init_sc_num,
+                      Sp_0=1-(init_ep_num+init_ip_num+init_qp_num+init_rp_num)/init_sp_num, 
+                      Ep_0=init_ep_num/init_sp_num, Ip_0=init_ip_num/init_sp_num, 
+                      Qp_0=init_qp_num/init_sp_num, Rp_0=init_rp_num/init_sp_num, 
+                      Sc_0=1-(init_ec_num+init_ic_num+init_qc_num+init_rc_num)/init_sc_num, 
+                      Ec_0=init_ec_num/init_sc_num, Ic_0=init_ic_num/init_sc_num, 
+                      Qc_0=init_qc_num/init_sc_num, Rc_0=init_rc_num/init_sc_num,                         
+                      R0=param_R0, sigma=1/param_e_dur, gamma=1/param_i_dur, vspt=param_vspt)
+```
+
+DATA
+
+```{r}
+# Load observed data
+data <- read.csv("diamond-data.csv")
+data
+```
+
+COMPARTMENTAL MODEL
+
+```{r}
+# Csnippets defining the stratified SEIQR model
+
+# pomp C API:
+# https://kingaa.github.io/pomp/vignettes/C_API.html
+
+rproc <- Csnippet("
+  int itot;
+  double reff, ftot;
+  double lambdap, lambdac;
+  double ratep[5], deltap[5];
+  double ratec[5], deltac[5];
+
+  // Scaling R0 by effect of VSP
+  reff = R0;
+  // itot = Ip + Ic;
+  itot = Np + Nc - Sp - Sc;
+  ftot = itot / (Np + Nc);
+  if (vspt < ftot) {
+    reff = vspf * R0;
+  }
+
+  // Force of infection for passangers
+  lambdap = reff * gamma * (Ip/Np+mixpc*Ic/Nc);
+  
+  // Rates between passanger classes
+  ratep[0] = lambdap;
+  ratep[1] = sigma;
+  ratep[2] = (1-qfrac)*gamma;
+  ratep[3] = qfrac*qrate;
+  ratep[4] = gamma;
+
+  // Deltas between passanger classes
+  reulermultinom(1, Sp, &ratep[0], dt, &deltap[0]);
+  reulermultinom(1, Ep, &ratep[1], dt, &deltap[1]);
+  // Careful when calling reulermultinom() in a situation with two (or more) 
+  // rates out of a compartment:
+  // https://kingaa.github.io/pomp/C_API.html#euler-multinomial-distribution
+  reulermultinom(2, Ip, &ratep[2], dt, &deltap[2]);
+  reulermultinom(1, Qp, &ratep[4], dt, &deltap[4]);
+
+  Sp += -deltap[0];
+  Ep += deltap[0] - deltap[1];
+  Ip += deltap[1] - deltap[2] - deltap[3];
+  Qp += deltap[3] - deltap[4];
+  Rp += deltap[2] + deltap[4];
+  Cp += deltap[1]; // Cumulative number of cases by adding up E -> I delta
+
+  // Force of infection for crew members
+  lambdac = reff * gamma * (Ic/Nc+mixpc*Ip/Np);
+  
+  // Rates between crew classes
+  ratec[0] = lambdac;
+  ratec[1] = sigma;
+  ratec[2] = (1-qfrac)*gamma;
+  ratec[3] = qfrac*qrate;
+  ratec[4] = gamma;
+
+  // Deltas between crew classes
+  reulermultinom(1, Sc, &ratec[0], dt, &deltac[0]);
+  reulermultinom(1, Ec, &ratec[1], dt, &deltac[1]);
+  reulermultinom(2, Ic, &ratec[2], dt, &deltac[2]);
+  reulermultinom(1, Qc, &ratec[4], dt, &deltac[4]);
+
+  Sc += -deltac[0];
+  Ec += deltac[0] - deltac[1];
+  Ic += deltac[1] - deltac[2] - deltac[3];
+  Qc += deltac[3] - deltac[4];
+  Rc += deltac[2] + deltac[4];
+  Cc += deltac[1]; // Cumulative number of cases by adding up E -> I delta
+")
+
+initlz <- Csnippet("
+  double mp = Np/(Sp_0 + Ep_0 + Ip_0 + Qp_0 + Rp_0);
+  Sp = nearbyint(mp*Sp_0);
+  Ep = nearbyint(mp*Ep_0);
+  Ip = nearbyint(mp*Ip_0);
+  Qp = nearbyint(mp*Qp_0);
+  Rp = nearbyint(mp*Rp_0);
+  Cp = Ip;
+  
+  double mc = Nc/(Sc_0 + Ec_0 + Ic_0 + Qc_0 + Rc_0);
+  Sc = nearbyint(mc*Sc_0);
+  Ec = nearbyint(mc*Ec_0);
+  Ic = nearbyint(mc*Ic_0);
+  Qc = nearbyint(mc*Qc_0);
+  Rc = nearbyint(mc*Rc_0);
+  Cc = Ic;
+")
+
+dmeas <- Csnippet("
+/*
+  double m = rho * (Cp + Cc);
+  double v = m * (1.0 - rho + psi * psi * m);
+  double tol = 1.0e-18;
+  if (cases > 0.0) {
+    lik = pnorm(cases + 0.5, m, sqrt(v) + tol, 1, 0) - pnorm(cases - 0.5, m, sqrt(v)  + tol, 1, 0) + tol;
+  } else {
+    lik = pnorm(cases + 0.5, m, sqrt(v) + tol, 1, 0) + tol;
+  }
+  if (give_log) lik = log(lik);
+  */
+  lik = 1.0;
+  if (give_log) lik = log(lik);
+")
+
+rmeas <- Csnippet("
+/*
+  double m = rho * (Cp + Cc);
+  double v = m * (1.0 - rho + psi * psi * m);
+  double tol = 1.0e-18;
+  cases = rnorm(m, sqrt(v) + tol);
+  if (cases > 0.0) {
+    cases = nearbyint(cases);
+  } else {
+    cases = 0.0;
+  }
+  */
+  cases = Cp + Cc;
+")
+```
+
+```{r}
+set.seed(2363)
+
+# POMP model
+simulate(t0=1, times=1:num_days,
+         rprocess=euler(rproc, delta.t=time_step),
+         rinit=initlz,
+         rmeasure=rmeas,
+         dmeasure=dmeas,
+         cdir=code_folder,
+         cfile=file_name,       
+         # Cp and Cc should NOT be accumulator variables:
+         # https://search.r-project.org/CRAN/refmans/pomp/html/accumvars.html
+         # becasuse otherwise they are reset every time step.
+         #accumvars=c("Cp", "Cc"),
+         statenames=c("Sp", "Ep", "Ip", "Qp", "Rp", "Cp", "Sc", "Ec", "Ic", "Qc", "Rc", "Cc"),
+         obsnames=c("cases"),
+         partrans=parameter_trans(
+           log=log_trans_params,
+           logit=logit_trans_params),
+         paramnames=all_param_names,
+         params=all_param_values,
+         verbose = TRUE
+) -> model_sim
+
+ggplot(data=pivot_longer(as(model_sim,"data.frame"),-time),
+  aes(x=time,y=value,color=name))+
+  geom_line()
+```
+SIMULATIONS
+
+```{r}
+# Use the "Set2" palette, known for muted colors
+my_colors <- brewer.pal(n = 4, name = "Set2")
+
+plot_sim <- function(sim_data, plot_title, save_sim_data=FALSE, sdata_fname="") {
+  sdata <- pivot_longer(as.data.frame(sim_data), c(cases, Cp, Cc))
+  
+  p <- ggplot(data=sdata,
+         aes(x=time,y=value,color=name,
+         group=interaction(.L1,name)))+
+  
+     geom_line()+
+  
+     geom_point(data = data, aes(x = day, y = cases, color = "Observed Cases"), inherit.aes = FALSE, size = 2) +
+     geom_line(data = data, aes(x = day, y = cases, color = "Observed Cases"), inherit.aes = FALSE, linetype = "dashed") +
+
+     labs(title = plot_title, x = "Time (days)", y = "Cumulative Cases") +
+     theme_minimal() +
+  
+     scale_color_manual(values = my_colors,
+                        labels = c(
+                          cases = "Simulated Total",
+                          Cp = "Simulated Passengers",
+                          Cc = "Simulated Crew"))
+
+  print(p)
+  return(p)
+} 
+```
+
+
+```{r}
+model_sim  %>%
+  simulate(nsim=num_sims) -> sim_data
+
+p <- plot_sim(sim_data, "Cumulative COVID-19 Cases on Diamond Princess")
+ggsave(file.path(out_folder, "trajectories.pdf"), plot = p, width = 8, height = 6)
+```
+
+```{r}
+for (R0 in c(2.1, 2.5, 3.0, 3.5)) {
+  all_param_values["vspt"] <- 0
+  all_param_values["vspf"] <- 1 #fraction by which R0 is reduced as a result of cleaning, etc. 0.5; for SEIR_DCM  = 1.0, that i, no VSP is carried out
+  all_param_values["R0"] <- R0
+  model_sim  %>%
+    simulate(nsim=num_sims, params=all_param_values) -> sim_data
+  plot_sim(sim_data, paste0("Cumulative COVID-19 Cases for R0 = ", R0))
+}
+```
