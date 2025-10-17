@@ -1,0 +1,204 @@
+---
+title: "Stratified (passengers, crew) SEIQR/SEIR DCM models for Cruiseship X (Norovirus)"
+---
+
+```{r}
+suppressMessages(library(EpiModel))
+library(ggplot2)
+library(RColorBrewer)
+```
+
+# Parameters:
+# R0 = Reproduction number
+# e_dur = duration of exposed period (in days)
+# i_dur = duration of infectious period (in days)
+# i_det = days before infection can be detected
+# qf = quarantine effectiveness
+# vspt = vessel sanitation protocol threshold
+# vspf = vessel sanitation protocol effectiveness
+# mix_pc = coefficient of passenger-crew mixing
+
+
+```{r}
+main_folder <- "./shipX/"
+if (!dir.exists(main_folder)) dir.create(main_folder)
+
+dcm_folder <- file.path(main_folder, "dcm")
+if (!dir.exists(dcm_folder)) dir.create(dcm_folder)
+
+out_folder <- file.path(dcm_folder, "output")
+if (!dir.exists(out_folder)) dir.create(out_folder)
+```
+
+```{r}
+
+# Disease parameters
+param_R0 <- 1.5
+param_e_dur <- 2
+param_i_dur <- 2 # or 3 days
+
+betas = 0.75 # or 0.5 for 3 days
+gammas = 0.5 # or 0.33 for 3 days
+
+# Intervention parameters
+param_i_det <- 0.5 #how long to quarantine
+param_qf <- 0.25 #fraction of people who gets quarantine, 0.75; for SEIR_DCM  = 0.0, that is, no people will quarantine
+param_vspt <- 0.03
+param_vspf <- 0.5 #fraction by which R0 is reduced as a result of cleaning, etc. 0.5; for SEIR_DCM  = 1.0, that is no VSP is carried out
+
+# Population mixing parameter
+param_mix_pc <- 0.5
+
+# Initial parameters
+param_sp_num <- 1876
+param_ep_num <- 0
+param_ip_num <- 12
+param_sc_num <- 814
+param_ec_num <- 0
+param_ic_num <- 0
+
+
+num_days <- 9
+
+```
+
+```{r}
+# Load observed data
+obs_df <- read.csv("cruiseshipx-data.csv") #ensure that this file is in the same directory as R script
+obs_df
+```
+
+```{r}
+SEIQR <- function(t, t0, parms) {
+  with(as.list(c(t0, parms)), {
+
+    # Population size - Passengers (p), Crew (c), total
+    num_p <- sp_num + ep_num + ip_num  + qp_num + rp_num
+    num_c <- sc_num + ec_num + ic_num  + qc_num + rc_num
+    num <- num_p + num_c
+
+    # Effective contact rate and FOI from a rearrangement of Beta * c * D
+    reff <- R0
+    i_tot <- num - sp_num - sc_num
+    if (vspt < i_tot / num) {
+      reff <- vspf * R0
+    }
+    
+    ce <- reff / i_dur 
+    lambda_p <- ce * (ip_num/num_p + (mix_pc * ic_num/num_c))
+    lambda_c <- ce * (ic_num/num_c + (mix_pc * ip_num/num_p))
+
+    # Expression for cross interactions: i.num.c/num.c * rate of contact
+    # Subtract from dS, add to dE
+    dS_p <- -lambda_p * sp_num
+    dE_p <- lambda_p * sp_num - (1/e_dur) * ep_num
+    dI_p <- (1/e_dur) * ep_num - (1 - qf) * (1/i_dur) * ip_num - qf * (1/i_det) * ip_num
+    dQ_p <- qf * (1/i_det) * ip_num - (1/i_dur) * qp_num
+    dR_p <- (1 - qf) * (1/i_dur) * ip_num + (1/i_dur) * qp_num
+    dS_c <- -lambda_c * sc_num
+    dE_c <- lambda_c * sc_num - (1/e_dur) * ec_num
+    dI_c <- (1/e_dur) * ec_num - (1 - qf) * (1/i_dur) * ic_num - qf * (1/i_det) * ic_num
+    dQ_c <- qf * (1/i_det) * ic_num - (1/i_dur) * qc_num
+    dR_c <- (1 - qf) * (1/i_dur) * ic_num + (1/i_dur) * qc_num
+
+    # Compartments and flows are part of the derivative vector
+    # Other calculations to be output are outside the vector, but within the containing list
+    # Passenger (-p_) and crew (-c_) compartments
+    list(c(dS_p, dE_p, dI_p, dQ_p, dR_p, dS_c, dE_c, dI_c, dQ_c, dR_c,
+           sep.flow = lambda_p * sp_num,
+           eip.flow = (1/e_dur) * ep_num,
+           irp.flow = (1 - qf) * (1/i_dur) * ip_num,
+           iqp.flow = qf * (1/i_det) * ip_num,
+           qrp.flow = (1/i_dur) * qp_num,
+           sec.flow = lambda_c * sc_num,
+           eic.flow = (1/e_dur) * ec_num,
+           irc.flow = (1 - qf) * (1/i_dur) * ic_num,
+           iqc.flow = qf * (1/i_det) * ic_num,
+           qrc.flow = (1/i_dur) * qc_num),
+         num_p = num_p,
+         num_c = num_c,
+         num = num)
+  })
+}
+```
+
+```{r}
+param <- param.dcm(R0 = param_R0, e_dur = param_e_dur, i_dur = param_i_dur, i_det = param_i_det, qf = param_qf, 
+                   vspt = param_vspt, vspf = param_vspf, mix_pc = param_mix_pc)
+
+init <- init.dcm(sp_num = param_sp_num, ep_num = param_ep_num, ip_num = param_ip_num, qp_num = 0, rp_num = 0,
+                 sc_num = param_sc_num, ec_num = param_ec_num, ic_num = param_ic_num, qc_num = 0, rc_num = 0,
+                 sep.flow = 0, eip.flow = 0, irp.flow = 0, iqp.flow = 0, qrp.flow = 0,
+                 sec.flow = 0, eic.flow = 0, irc.flow = 0, iqc.flow = 0, qrc.flow = 0)
+control <- control.dcm(nsteps = num_days, dt = 1, new.mod = SEIQR)
+```
+
+```{r}
+mod <- dcm(param, init, control)
+mod
+```
+
+```{r}
+par(mfrow = c(2, 5))
+plot(mod, y = "sp_num", main = "Susceptible Passengers")
+plot(mod, y = "ep_num", main = "Exposed Passengers")
+plot(mod, y = "ip_num", main = "Infectious Passengers")
+plot(mod, y = "qp_num", main = "Quarantined Passengers")
+plot(mod, y = "rp_num", main = "Recovered Passengers")
+plot(mod, y = "sc_num", main = "Susceptible Crew")
+plot(mod, y = "ec_num", main = "Exposed Crew")
+plot(mod, y = "ic_num", main = "Infectious Crew")
+plot(mod, y = "qc_num", main = "Quarantined Crew")
+plot(mod, y = "rc_num", main = "Recovered Crew")
+```
+
+```{r}
+sim_df <- as.data.frame(mod)
+sim_df
+```
+
+```{r}
+plot(mod, y = "eip.flow", main = "New cases among passangers")
+plot(mod, y = "eic.flow", main = "New cases among crew members")
+```
+
+```{r}
+# Create cumulative columns
+sim_df$cum_cases_p <- cumsum(sim_df$eip.flow) + param_ip_num
+sim_df$cum_cases_c <- cumsum(sim_df$eic.flow) + param_ic_num
+
+# Calculate the total cumulative cases
+sim_df$cum_cases_total <- sim_df$cum_cases_p + sim_df$cum_cases_c
+print(sim_df)
+
+# Create the output data frame
+output_df <- sim_df[, c(1, (ncol(sim_df)-2):ncol(sim_df))]
+
+
+# Write to CSV
+write.csv(output_df, file = "out_shipx_seir_dcm_qf_vsp_5.0_0.3_0.3_extreme1.csv", row.names = FALSE)
+
+```
+
+```{r}
+
+# Use the "Set2" palette, known for muted colors
+my_colors <- brewer.pal(n = 4, name = "Set2")
+
+p <- ggplot(sim_df, aes(x = time)) +
+  geom_line(aes(y = cum_cases_p, color = "Simulated Passengers")) +
+  geom_line(aes(y = cum_cases_c, color = "Simulated Crew")) +
+  geom_line(aes(y = cum_cases_total, color = "Simulated Total")) +
+  
+  geom_point(data = obs_df, aes(x = day, y = cases, color = "Observed Cases"), size = 2) +
+  geom_line(data = obs_df, aes(x = day, y = cases, color = "Observed Cases"), linetype = "dashed") +
+  
+  labs(title = "Cumulative Norovirus Cases on cruiseship X",
+       x = "Time (days)", y = "Cumulative Cases") +
+  theme_minimal() +
+  scale_color_manual(values = my_colors)
+
+print(p)
+
+ggsave(file.path(out_folder, "trajectory_SEIR_DCM_QF_VSP_5.0_0.3_0.3.pdf"), plot = p, width = 8, height = 6)
+```
